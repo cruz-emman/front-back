@@ -1,4 +1,5 @@
 import express from 'express'
+import path from 'path'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import authRoute from './route/auth.js'
@@ -34,19 +35,17 @@ mongoose.connection.on("disconnected", () => {
 app.use(cors())
 app.use(express.json())
 
-app.use(express.static(path.join(__dirname, './client/build')));
-app.get("*", function (req, res) {
-  res.sendFile(
-    path.join(__dirname, "./client/build/index.html"),
-    function(err){
-      res.status(500).send(err)
-    }
-  )
-})
 
 app.use('/api/auth', authRoute)
 app.use('/api/product', productRoute)
 app.use('/api/user', userRoute)
+
+const __dirname = path.resolve()
+app.use(express.static(path.join(__dirname, '/client/build')));
+app.get("*",(req,res) => {
+  res.sendFile(path.join(__dirname, '/client/build/index.html'));
+})
+
 
 app.use((err, req, res, next) => {
     const errorStatus = err.status || 500;
